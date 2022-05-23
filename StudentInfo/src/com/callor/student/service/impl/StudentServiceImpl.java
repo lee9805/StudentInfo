@@ -1,81 +1,117 @@
 package com.callor.student.service.impl;
 
-import java.io.BufferedReader;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import com.callor.student.domain.StudentVO;
 import com.callor.student.service.StudentService;
-import com.callor.utils.Line;
 
 public class StudentServiceImpl implements StudentService {
 
 	private List<StudentVO> ListVO ;
-	private FileReader fileReader;
-	private BufferedReader buffer; 
+	private String saveFileName;
+	private Scanner scan;
 	
 	public StudentServiceImpl() {
 
 		ListVO = new ArrayList<>();
+		scan = new Scanner(System.in);
+		saveFileName = "./src/Student.txt";
 	}
 	
 	
 	@Override
 	public void inputStudent() {
-		
-		String sFile = "./src/Student.txt";
-		try {
-			
-			fileReader = new FileReader(sFile);
-			buffer = new BufferedReader(fileReader);
-			String reader = "";
-			while(true) {
-				reader = buffer.readLine();
-				if(reader ==null) {
-					break;
-				}
-				String[] students = reader.split(":");
-				StudentVO sVO = new StudentVO();
-				sVO.setStNum(students[0]);
-				sVO.setStName(students[1]);
-				sVO.setStDept(students[2]);
-				sVO.setStGrade(1);
-				sVO.setStTel(students[4]);
-				ListVO.add(sVO);
+
+		while(true) {
+			System.out.println("학생학번입력(QUIT:종료) >> ");
+			String stNum = scan.nextLine();
+			if(stNum.equals("QUIT")) {
+				break;
 			}
-			buffer.close();
-			fileReader.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("학생이름입력(QUIT:종료) >> ");
+			String stName = scan.nextLine();
+			
+			System.out.println("학생학과입력(QUIT:종료) >> ");
+			String stDept = scan.nextLine();
+
+			System.out.println("학생학년입력(QUIT:종료) >> ");
+			String stGrade = scan.nextLine();
+			Integer intGrade = Integer.valueOf(stGrade);
+			
+			System.out.println("학생전화번호입력(QUIT:종료) >> ");
+			String stTel = scan.nextLine();
+			
+			StudentVO sVO = new StudentVO();
+
+			try {
+				FileInputStream is = new FileInputStream(saveFileName);
+				Scanner fileScan = new Scanner(is);
+				while(fileScan.hasNext()) {
+					String line = fileScan.nextLine();
+					String[] sts = line.split(":");
+					
+					StudentVO stVO = StudentVO.builder()
+											.stNum(sts[0])
+											.stName(sts[1])
+											.stDept(sts[2])
+											.stGrade(Integer.valueOf(sts[3]))
+											.stTel(sts[3])
+											.build();
+					ListVO.add(sVO);
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			for(StudentVO stVO : ListVO) {
+				System.out.println(stVO.toString());
+			}
 		}
-		
 	}
 
 	@Override
 	public void printStudent() {
 		
-		System.out.println(Line.dLine(50));
-		System.out.println("성적일람표");
-		System.out.println(Line.sLine(50));
-		System.out.println("학번\t이름\t학과\t학년\t전화번호");
-		System.out.println(Line.sLine(50));
-		
-		for(StudentVO sVO : ListVO) {
-			
-			System.out.print(sVO.getStNum() + "\t");
-			System.out.print(sVO.getStName() + "\t");
-			System.out.print(sVO.getStDept() + "\t");
-			System.out.print(sVO.getStGrade() + "\t");
-			System.out.print(sVO.getStTel() + "\t");
-			
-
-		
 	}
+
+
+	@Override
+	public void saveStudent() {
+		
+		FileOutputStream fileOut = null;
+		BufferedOutputStream buffer = null;
+		
+		try {
+			fileOut = new FileOutputStream(saveFileName);
+			buffer = new BufferedOutputStream(fileOut);
+			for(StudentVO scVO : ListVO) {
+				String writeStr = "";
+				writeStr += String.format("%s:", scVO.getStNum());
+				writeStr += String.format("%s:", scVO.getStName());
+				writeStr += String.format("%s:", scVO.getStDept());
+				writeStr += String.format("%s:", scVO.getStGrade());
+				writeStr += String.format("%s\n", scVO.getStTel());
+				
+				buffer.write(writeStr.getBytes());
+			}
+			buffer.flush();
+			buffer.close();
+			fileOut.close();
+			
+		} catch (FileNotFoundException e) {
+			
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }

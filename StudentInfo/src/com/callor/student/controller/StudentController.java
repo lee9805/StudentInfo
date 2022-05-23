@@ -10,6 +10,7 @@ public class StudentController {
 		
 		impl.inputStudent();
 		impl.printStudent();
+		impl.saveStudent();
 	}
 	
 }

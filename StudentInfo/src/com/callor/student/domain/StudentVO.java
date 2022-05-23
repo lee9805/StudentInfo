@@ -18,7 +18,7 @@ public class StudentVO {
 	private String stNum;
 	private String stName;
 	private String stDept;
-	private int stGrade;
+	private Integer stGrade;
 	private String stTel;
 	
 	
